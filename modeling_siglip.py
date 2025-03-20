@@ -1,6 +1,10 @@
+# torch stuff
 import torch
 import torch.nn as nn
 import torch.functional as F
+
+# others
+from typing import Optional, Tuple
 
 
 
@@ -95,8 +99,23 @@ class SiglipAttention(nn.Module):
         self.q_proj = nn.Linear(self.embed_dim, self.embed_dim)
         self.out_proj = nn.Linear(self.embed_dim, self.embed_dim)
         
-    def forward(self, hidden_states: torch.Tensor):
-        pass
+    def forward(self, hidden_states: torch.Tensor
+        )-> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        batch_size, seq_len = hidden_states.size()
+        
+        # from here on attention operation starts.
+        query_states = self.q_proj(hidden_states)
+        key_states = self.k_proj(hidden_states)
+        value_states = self.v_proj(hidden_states)
+        # mm between Q and K, we split the original dim --> head_dim
+        query_states = query_states.view(batch_size, seq_len, self.num_heads, self.head_dim)
+        query_states = query_states.transpose(1, 2) # swap seq_len axis with the self.num_heads so that we have following dim.
+        # batch, self.num_heads, seq_len, self.head_dim
+        key_states = key_states.view(batch_size, seq_len, self.num_heads, self.head_dim)
+        key_states = key_states.transpose(1, 2)
+        value_states = value_states.view(batch_size, seq_len, self.num_heads, self.head_dim)
+        value_states = value_states.transpose(1, 2)
+        # attn_weights = (torch.mat(query_states, key_states.transpose()))
         
 class SiglipEncoderLayer(nn.Module):
     def __init__(self, config: SiglipVisionConfig):
@@ -133,6 +152,7 @@ class SiglipVisionTransformer(nn.Module):
     def forward(self, x):
         hidden_states = self.embeddings(x)
         last_hidden_state = self.encoder(input_embeds=hidden_states)
+        last_hidden_state = self.post_layernorm(last_hidden_state)
         return last_hidden_state
 
 
