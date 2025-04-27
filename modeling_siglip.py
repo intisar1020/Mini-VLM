@@ -15,6 +15,7 @@ class SiglipVisionConfig:
         self,
         hidden_size=768,
         intermediate_size=3072,
+        num_hidden_layers=12,
         num_attention_head=12,
         num_channels = 3,
         image_size=224,
@@ -28,6 +29,7 @@ class SiglipVisionConfig:
         super().__init__()
         self.hidden_size = hidden_size,
         self.intermediate_size = intermediate_size, 
+        self.num_hidden_layers = num_hidden_layers
         self.num_attention_head = num_attention_head,
         self.num_channels = num_channels,
         self.image_size = image_size,
@@ -107,14 +109,32 @@ class SiglipAttention(nn.Module):
         query_states = self.q_proj(hidden_states)
         key_states = self.k_proj(hidden_states)
         value_states = self.v_proj(hidden_states)
-        # mm between Q and K, we split the original dim --> head_dim
+        # mm between Q and K, we split the original dim --> (num_heads, head_dim)
         query_states = query_states.view(batch_size, seq_len, self.num_heads, self.head_dim)
         query_states = query_states.transpose(1, 2) # swap seq_len axis with the self.num_heads so that we have following dim.
         # batch, self.num_heads, seq_len, self.head_dim
         key_states = key_states.view(batch_size, seq_len, self.num_heads, self.head_dim)
         key_states = key_states.transpose(1, 2)
+        # batch, self.num_heads, seq_len, self.head_dim
         value_states = value_states.view(batch_size, seq_len, self.num_heads, self.head_dim)
         value_states = value_states.transpose(1, 2)
+        attn_weights = (torch.matmul(query_states, key_states.transpose(2,3)) * self.scale)
+        # the attn_weights is as follows:
+        # query_states = (batch,  num_heads, seq_len, head_dim)
+        # key_states = (batch, num_head, head_dim, seq_len)
+        # so attn_weights dim ==> (batch, num_head, seq_len, seq_len)
+        if attn_weights.size() != (batch_size, self.num_heads, seq_len, seq_len):
+            raise ValueError(f"attn weight size mismatch")
+        attn_weights = nn.funtional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+        attn_output = torch.matmul(attn_weights, value_states) # (b, num_head, seq_len, head_dim)
+        attn_outout = attn_output.transpose(1, 2).contiguous() # (b,  seq_len, num_head, head_dim)
+        attn_output = attn_output.reshape(batch_size, seq_len, self.num_heads * self.head_dim)
+        attn_outout = self.out_proj(attn_outout)
+        return attn_outout, attn_weights
+        # attn_output dim. derivation as follows:
+        # attn_weights = (batch, num_head, seq_len, seq_len) 
+        # value_states = (batch, num_head, seq_len, head_dim)
+        # 
         # attn_weights = (torch.mat(query_states, key_states.transpose()))
         
 class SiglipEncoderLayer(nn.Module):
@@ -137,7 +157,27 @@ class SiglipEncoderLayer(nn.Module):
         hidden_states = self.mlp(hidden_states)
         hidden_states = residual + hidden_states
         return hidden_states
-        
+
+class SiglipEncoder(nn.Module):
+    def __init__(self, config: SiglipVisionConfig):
+        super().__init__()
+        self.config = config
+        self.layers = nn.ModuleList(
+            [SiglipEncoderLayer(config) for _ in  range(config.num_hidden_layers)]
+        )
+    
+    def forward(self, inputs_embeds: torch.Tensor) -> torch.Tensor:
+        # inputs_embeds: [Batch_Size, Num_Patches, Embed_Dim]
+        hidden_states = inputs_embeds
+
+        for encoder_layer in self.layers:
+            # [Batch_Size, Num_Patches, Embed_Dim] -> [Batch_Size, Num_Patches, Embed_Dim]
+            hidden_states = encoder_layer(hidden_states)
+
+        return hidden_states
+
+
+
 class SiglipVisionTransformer(nn.Module):
 
     def __init__(self, config: SiglipVisionConfig):
@@ -170,10 +210,13 @@ class SiglipVisionModel(nn.Module):
         return self.vision_model(pixel_values=x)
 
 
-    
+config = SiglipVisionConfig(hidden_size=512, image_size=192, num_attention_head=8)
+print(config.__dict__)
 
+print("-" * 20)
 
-
+model = SiglipVisionTransformer(config)
+print (model)
 
 
         
