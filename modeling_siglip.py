@@ -71,7 +71,6 @@ class SiglipVisionEmbeddings(nn.Module):
         embeddings = patch_embeds.flatten(2)
         #  embeddings --> <b, num_of_patches, embedding)
         embeddings = embeddings.transpose(1, 2)
-        print (embeddings.shape)
         embeddings = embeddings + self.position_embedding(self.position_ids)
         return embeddings
 
@@ -107,7 +106,6 @@ class SiglipAttention(nn.Module):
         
     def forward(self, hidden_states: torch.Tensor
         )-> Tuple[torch.Tensor, Optional[torch.Tensor]]:
-        print (hidden_states.size())
         batch_size, seq_len, _ = hidden_states.size()
         
         # from here on attention operation starts.
@@ -206,13 +204,13 @@ class SiglipVisionModel(nn.Module):
     # SiglipVisonTransformer = SiglipVisionEmbedding + SiglipEncoder
     # SiglipEncoder = SiglipAttention + SigLipMLP + SiglipNORM
     def __init__(self, config: SiglipVisionConfig):
-        super().__int__()
+        super().__init__()
         self.config = config
         self.vision_model = SiglipVisionTransformer(config)
 
     def forward(self, x) -> tuple:
         # takes [B, C, H, W] returns [B, N, E]
-        return self.vision_model(pixel_values=x)
+        return self.vision_model(x)
 
 
 config = SiglipVisionConfig()
@@ -220,7 +218,7 @@ print(config.__dict__)
 
 print("-" * 20)
 
-model = SiglipVisionTransformer(config)
+model = SiglipVisionModel(config)
 print (model)
 input_ = torch.rand((2, 3, 224, 224))
 out = model(input_)
