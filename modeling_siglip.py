@@ -17,7 +17,7 @@ class SiglipVisionConfig:
         intermediate_size=3072,
         num_hidden_layers=12,
         num_attention_head=12,
-        num_channels = 3,
+        num_channels =3,
         image_size=224,
         patch_size=16,
         layer_norm_eps=1e-6,
@@ -27,27 +27,26 @@ class SiglipVisionConfig:
     ):
 
         super().__init__()
-        self.hidden_size = hidden_size,
-        self.intermediate_size = intermediate_size, 
+        self.hidden_size = hidden_size
+        self.intermediate_size = intermediate_size
         self.num_hidden_layers = num_hidden_layers
-        self.num_attention_head = num_attention_head,
-        self.num_channels = num_channels,
-        self.image_size = image_size,
-        self.patch_size = patch_size,
-        self.layer_norm_eps = layer_norm_eps,
-        self.attention_dropout = attention_dropout,
+        self.num_attention_heads = num_attention_head
+        self.num_channels = num_channels
+        self.image_size = image_size
+        self.patch_size = patch_size
+        self.layer_norm_eps = layer_norm_eps
+        self.attention_dropout = attention_dropout
         self.num_image_tokens = num_image_tokens
 ###########################################################
 
 
-class SiglipVisionEmbedding(nn.Module):
+class SiglipVisionEmbeddings(nn.Module):
     def __init__(self, config: SiglipVisionConfig):
         super().__init__()
         self.config = config
         self.embed_dim = config.hidden_size
         self.image_size = config.image_size
         self.patch_size = config.patch_size
-
         self.patch_embedding = nn.Conv2d(
             in_channels=config.num_channels,
             out_channels=self.embed_dim,
@@ -58,8 +57,11 @@ class SiglipVisionEmbedding(nn.Module):
         self.num_patches = (self.image_size // self.patch_size) ** 2
         self.num_positions = self.num_patches
         self.position_embedding = nn.Embedding(self.num_positions, self.embed_dim)
-        self.bufers = torch.arange(self.num)
-        self.register_buffer("position_ids", self.buffers.unsqueeze(0), persistent=False,)
+        self.register_buffer(
+            "position_ids",
+            torch.arange(self.num_positions).expand((1, -1)),
+            persistent=False,
+        )
         # no [CLS] embedding here.
     
     def forward(self, pixel_values: torch.FloatTensor) -> torch.Tensor:
@@ -69,6 +71,7 @@ class SiglipVisionEmbedding(nn.Module):
         embeddings = patch_embeds.flatten(2)
         #  embeddings --> <b, num_of_patches, embedding)
         embeddings = embeddings.transpose(1, 2)
+        print (embeddings.shape)
         embeddings = embeddings + self.position_embedding(self.position_ids)
         return embeddings
 
@@ -83,6 +86,7 @@ class SiglipMLP(nn.Module):
     def forward(self, hidden_states: torch.Tensor) -> torch.Tensor:
         hidden_states = self.fc1(hidden_states)
         hidden_states = self.fc2(hidden_states)
+        return hidden_states
 
 
 class SiglipAttention(nn.Module):
@@ -103,7 +107,8 @@ class SiglipAttention(nn.Module):
         
     def forward(self, hidden_states: torch.Tensor
         )-> Tuple[torch.Tensor, Optional[torch.Tensor]]:
-        batch_size, seq_len = hidden_states.size()
+        print (hidden_states.size())
+        batch_size, seq_len, _ = hidden_states.size()
         
         # from here on attention operation starts.
         query_states = self.q_proj(hidden_states)
@@ -125,12 +130,12 @@ class SiglipAttention(nn.Module):
         # so attn_weights dim ==> (batch, num_head, seq_len, seq_len)
         if attn_weights.size() != (batch_size, self.num_heads, seq_len, seq_len):
             raise ValueError(f"attn weight size mismatch")
-        attn_weights = nn.funtional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+        attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
         attn_output = torch.matmul(attn_weights, value_states) # (b, num_head, seq_len, head_dim)
-        attn_outout = attn_output.transpose(1, 2).contiguous() # (b,  seq_len, num_head, head_dim)
+        attn_output = attn_output.transpose(1, 2).contiguous() # (b,  seq_len, num_head, head_dim)
         attn_output = attn_output.reshape(batch_size, seq_len, self.num_heads * self.head_dim)
-        attn_outout = self.out_proj(attn_outout)
-        return attn_outout, attn_weights
+        attn_output = self.out_proj(attn_output)
+        return attn_output, attn_weights
         # attn_output dim. derivation as follows:
         # attn_weights = (batch, num_head, seq_len, seq_len) 
         # value_states = (batch, num_head, seq_len, head_dim)
@@ -185,13 +190,13 @@ class SiglipVisionTransformer(nn.Module):
         self.config = config
         embed_dim = config.hidden_size
         # patch embeddings
-        self.embeddings = SiglipVisionEmbedding(config)
+        self.embeddings = SiglipVisionEmbeddings(config)
         self.encoder = SiglipEncoder(config) 
-        self.post_layernorm = nn.Layernorm(embed_dim)
+        self.post_layernorm = nn.LayerNorm(embed_dim)
     
     def forward(self, x):
         hidden_states = self.embeddings(x)
-        last_hidden_state = self.encoder(input_embeds=hidden_states)
+        last_hidden_state = self.encoder(inputs_embeds=hidden_states)
         last_hidden_state = self.post_layernorm(last_hidden_state)
         return last_hidden_state
 
@@ -210,13 +215,15 @@ class SiglipVisionModel(nn.Module):
         return self.vision_model(pixel_values=x)
 
 
-config = SiglipVisionConfig(hidden_size=512, image_size=192, num_attention_head=8)
+config = SiglipVisionConfig()
 print(config.__dict__)
 
 print("-" * 20)
 
 model = SiglipVisionTransformer(config)
 print (model)
-
+input_ = torch.rand((2, 3, 224, 224))
+out = model(input_)
+print (out.shape)
 
         
