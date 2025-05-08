@@ -72,6 +72,8 @@ class SiglipVisionEmbeddings(nn.Module):
         #  embeddings --> <b, num_of_patches, embedding)
         embeddings = embeddings.transpose(1, 2)
         embeddings = embeddings + self.position_embedding(self.position_ids)
+        # pos_emb = self.position_embedding(self.position_ids)
+        # print (f"position embeddings:  {pos_emb.shape}")
         return embeddings
 
 
@@ -219,9 +221,9 @@ print(config.__dict__)
 print("-" * 20)
 
 model = SiglipVisionModel(config)
-print (model)
+# print (model)
 input_ = torch.rand((2, 3, 224, 224))
 out = model(input_)
-print (out.shape)
+# print (out.shape)
 
         
