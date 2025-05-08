@@ -33,3 +33,26 @@ def normalize(
     std = np.array(std, dtype=image.dtype)
     image = (image - mean) / std
     return image
+
+def process_images(
+        images: List[Image.Image],
+        size: Dict[str, int] = None,
+        resample: Image.Resampling = None,
+        rescale_factor: float = None,
+        image_mean: Optional[Union[float, List[float]]] = None,
+        image_std: Optional[Union[float, List[float]]] = None
+) -> List[np.ndarray]:
+    height, width = size[0], size[1]
+    images = [
+        resize(image=image, size=(height, width), resample=resample)for image in images
+    ]
+    images = [np.array(image) for image in images]
+    images = [rescale(image, scale=rescale_factor) for image in images]
+    images = [normalize(image, mean=image_mean, std=image_std) for image in images]
+    images = [image.transpose(2, 0, 1) for image in images]
+    return images
+
+class PaliGemmaProcessor:
+    IMAGE_TOKEN = "<image>"
+    def __init__(self):
+        pass
