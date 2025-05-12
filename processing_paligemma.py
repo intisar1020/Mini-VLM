@@ -99,7 +99,7 @@ class PaliGemmaProcessor:
             image_std=IMAGENET_STANDARD_STD
         )
         pixel_values = np.stack(pixel_values, axis=0)
-        pixel_values = torch.tensor(pixel_values)
+        pixel_values = torch.tensor(pixel_values, dtype=torch.float32)
 
         input_strings = [
             add_image_tokens_to_prompt(
@@ -119,3 +119,4 @@ class PaliGemmaProcessor:
 
         return_data = {"pixel_values": pixel_values, **inputs}
         return return_data
+
