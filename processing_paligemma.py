@@ -90,6 +90,7 @@ class PaliGemmaProcessor:
             padding: str = "longest",
             truncation: bool = True,
     ) -> dict:
+        assert len(images) == 1 and len(text) == 1, f"got {len(images)} images for {len(text)} prompts"
         pixel_values = process_images(
             images,
             size=(self.image_size, self.image_size),
