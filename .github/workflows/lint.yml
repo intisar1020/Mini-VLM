@@ -1,0 +1,37 @@
+name: Lint check
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v3
+      
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Configure Poetry (no virtualenv inside CI)
+        run: |
+          poetry config virtualenvs.create false
+
+      - name: Install only style deps (ruff)
+        run: |
+          poetry install --only style --no-root
+
+      - name: Run ruff lint
+        run: |
+          poetry run ruff check .
+
