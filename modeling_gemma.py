@@ -78,10 +78,22 @@ class PaliGemmaConfig():
         
         
 class PaliGemmaMultiModalProjector(nn.Module):
-    pass
+    def __init__(self, config: PaliGemmaConfig):
+        super().__init__()
+        self.Linear = nn.Linear(
+            config.vision_config.hidden_size,
+            config.vision_config.projection_dim, 
+            bias=True
+        )
+    
+    def forward(self, image_featuers):
+        hidden_state = self.Linear(image_featuers)
+        return hidden_state
+
 
 class GemmaForCausalLM():
     pass    
+
 
 
 class PaliGemmaForConditionalGeneration(nn.Module):
