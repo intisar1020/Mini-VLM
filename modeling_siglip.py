@@ -1,7 +1,6 @@
 # torch stuff
 import torch
 import torch.nn as nn
-import torch.functional as F
 
 # others
 from typing import Optional, Tuple
@@ -129,7 +128,7 @@ class SiglipAttention(nn.Module):
         # key_states = (batch, num_head, head_dim, seq_len)
         # so attn_weights dim ==> (batch, num_head, seq_len, seq_len)
         if attn_weights.size() != (batch_size, self.num_heads, seq_len, seq_len):
-            raise ValueError(f"attn weight size mismatch")
+            raise ValueError("attn weight size mismatch")
         attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
         attn_output = torch.matmul(attn_weights, value_states) # (b, num_head, seq_len, head_dim)
         attn_output = attn_output.transpose(1, 2).contiguous() # (b,  seq_len, num_head, head_dim)

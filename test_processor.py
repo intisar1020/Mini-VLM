@@ -1,9 +1,8 @@
 from transformers import AutoTokenizer
 from PIL import Image
 import numpy as np
-import torch
 
-from processing_paligemma import PaliGemmaProcessor, IMAGENET_STANDARD_MEAN, IMAGENET_STANDARD_STD
+from processing_paligemma import PaliGemmaProcessor
 
 tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 print (tokenizer)
