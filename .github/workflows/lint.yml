@@ -29,7 +29,7 @@ jobs:
 
       - name: Install only style deps (ruff)
         run: |
-          poetry install --only style --no-root
+          poetry install --only dev --no-root
 
       - name: Run ruff lint
         run: |
