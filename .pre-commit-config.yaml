@@ -1,7 +1,14 @@
+# .pre-commit-config.yaml
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4  # You can check the latest: https://github.com/astral-sh/ruff-pre-commit/releases
     hooks:
-    -   id: check-added-large-files
-        args:
-        - --maxkb=100
+      - id: ruff
+        args: [--fix]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0  # Check https://github.com/pre-commit/pre-commit-hooks/releases for the latest version
+    hooks:
+      - id: check-added-large-files
+        args: ['--maxkb=100']  # Set the max file size limit in kilobytes (here, 100KB)
