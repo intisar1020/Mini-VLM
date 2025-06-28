@@ -1,0 +1,431 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>minivlm documentation &mdash; minivlm 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            minivlm
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">minivlm documentation</a><ul>
+<li><a class="reference internal" href="#modeling_siglip.SiglipAttention"><code class="docutils literal notranslate"><span class="pre">SiglipAttention</span></code></a><ul>
+<li><a class="reference internal" href="#modeling_siglip.SiglipAttention.forward"><code class="docutils literal notranslate"><span class="pre">SiglipAttention.forward()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#modeling_siglip.SiglipEncoder"><code class="docutils literal notranslate"><span class="pre">SiglipEncoder</span></code></a><ul>
+<li><a class="reference internal" href="#modeling_siglip.SiglipEncoder.forward"><code class="docutils literal notranslate"><span class="pre">SiglipEncoder.forward()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#modeling_siglip.SiglipEncoderLayer"><code class="docutils literal notranslate"><span class="pre">SiglipEncoderLayer</span></code></a><ul>
+<li><a class="reference internal" href="#modeling_siglip.SiglipEncoderLayer.forward"><code class="docutils literal notranslate"><span class="pre">SiglipEncoderLayer.forward()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#modeling_siglip.SiglipMLP"><code class="docutils literal notranslate"><span class="pre">SiglipMLP</span></code></a><ul>
+<li><a class="reference internal" href="#modeling_siglip.SiglipMLP.forward"><code class="docutils literal notranslate"><span class="pre">SiglipMLP.forward()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#modeling_siglip.SiglipVisionConfig"><code class="docutils literal notranslate"><span class="pre">SiglipVisionConfig</span></code></a></li>
+<li><a class="reference internal" href="#modeling_siglip.SiglipVisionEmbeddings"><code class="docutils literal notranslate"><span class="pre">SiglipVisionEmbeddings</span></code></a><ul>
+<li><a class="reference internal" href="#modeling_siglip.SiglipVisionEmbeddings.forward"><code class="docutils literal notranslate"><span class="pre">SiglipVisionEmbeddings.forward()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#modeling_siglip.SiglipVisionModel"><code class="docutils literal notranslate"><span class="pre">SiglipVisionModel</span></code></a><ul>
+<li><a class="reference internal" href="#modeling_siglip.SiglipVisionModel.forward"><code class="docutils literal notranslate"><span class="pre">SiglipVisionModel.forward()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#modeling_siglip.SiglipVisionTransformer"><code class="docutils literal notranslate"><span class="pre">SiglipVisionTransformer</span></code></a><ul>
+<li><a class="reference internal" href="#modeling_siglip.SiglipVisionTransformer.forward"><code class="docutils literal notranslate"><span class="pre">SiglipVisionTransformer.forward()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#modeling_gemma.GemmaConfig"><code class="docutils literal notranslate"><span class="pre">GemmaConfig</span></code></a></li>
+<li><a class="reference internal" href="#modeling_gemma.GemmaForCausalLM"><code class="docutils literal notranslate"><span class="pre">GemmaForCausalLM</span></code></a></li>
+<li><a class="reference internal" href="#modeling_gemma.KVCache"><code class="docutils literal notranslate"><span class="pre">KVCache</span></code></a></li>
+<li><a class="reference internal" href="#modeling_gemma.PaliGemmaConfig"><code class="docutils literal notranslate"><span class="pre">PaliGemmaConfig</span></code></a></li>
+<li><a class="reference internal" href="#modeling_gemma.PaliGemmaForConditionalGeneration"><code class="docutils literal notranslate"><span class="pre">PaliGemmaForConditionalGeneration</span></code></a><ul>
+<li><a class="reference internal" href="#modeling_gemma.PaliGemmaForConditionalGeneration.forward"><code class="docutils literal notranslate"><span class="pre">PaliGemmaForConditionalGeneration.forward()</span></code></a></li>
+<li><a class="reference internal" href="#modeling_gemma.PaliGemmaForConditionalGeneration.tie_weights"><code class="docutils literal notranslate"><span class="pre">PaliGemmaForConditionalGeneration.tie_weights()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#modeling_gemma.PaliGemmaMultiModalProjector"><code class="docutils literal notranslate"><span class="pre">PaliGemmaMultiModalProjector</span></code></a><ul>
+<li><a class="reference internal" href="#modeling_gemma.PaliGemmaMultiModalProjector.forward"><code class="docutils literal notranslate"><span class="pre">PaliGemmaMultiModalProjector.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">minivlm</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">minivlm documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="minivlm-documentation">
+<h1>minivlm documentation<a class="headerlink" href="#minivlm-documentation" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<dl class="py class" id="module-modeling_siglip">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipAttention">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">modeling_siglip.</span></span><span class="sig-name descname"><span class="pre">SiglipAttention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipAttention"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipAttention" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Multi-head self-attention module.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipAttention.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hidden_states</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipAttention.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipAttention.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipEncoder">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">modeling_siglip.</span></span><span class="sig-name descname"><span class="pre">SiglipEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipEncoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipEncoder" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Stack of Transformer encoder layers.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipEncoder.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipEncoder.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipEncoder.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipEncoderLayer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">modeling_siglip.</span></span><span class="sig-name descname"><span class="pre">SiglipEncoderLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipEncoderLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipEncoderLayer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A single Transformer encoder block with attention and MLP.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipEncoderLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipEncoderLayer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipEncoderLayer.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipMLP">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">modeling_siglip.</span></span><span class="sig-name descname"><span class="pre">SiglipMLP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipMLP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipMLP" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Feed-forward network used in each Transformer layer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipMLP.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipMLP.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipMLP.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipVisionConfig">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">modeling_siglip.</span></span><span class="sig-name descname"><span class="pre">SiglipVisionConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hidden_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">768</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intermediate_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3072</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_attention_head</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">224</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_norm_eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_image_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipVisionConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipVisionConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Configuration class for the Siglip Vision Transformer model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hidden_size</strong> (<em>int</em>) – Dimensionality of the encoder layers and the pooler layer (embed_dim).</p></li>
+<li><p><strong>intermediate_size</strong> (<em>int</em>) – Dimensionality of the feed-forward layer in the MLP.</p></li>
+<li><p><strong>num_hidden_layers</strong> (<em>int</em>) – Number of encoder layers.</p></li>
+<li><p><strong>num_attention_head</strong> (<em>int</em>) – Number of attention heads per layer.</p></li>
+<li><p><strong>num_channels</strong> (<em>int</em>) – Number of image input channels (usually 3 for RGB).</p></li>
+<li><p><strong>image_size</strong> (<em>int</em>) – Height and width of the input image (assumes square).</p></li>
+<li><p><strong>patch_size</strong> (<em>int</em>) – Size of the image patches.</p></li>
+<li><p><strong>layer_norm_eps</strong> (<em>float</em>) – Epsilon for layer normalization.</p></li>
+<li><p><strong>attention_dropout</strong> (<em>float</em>) – Dropout probability in attention.</p></li>
+<li><p><strong>num_image_tokens</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – Number of image tokens (usually computed).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipVisionEmbeddings">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">modeling_siglip.</span></span><span class="sig-name descname"><span class="pre">SiglipVisionEmbeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipVisionEmbeddings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipVisionEmbeddings" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Computes patch embeddings from input images and adds positional encodings.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipVisionEmbeddings.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipVisionEmbeddings.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipVisionEmbeddings.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipVisionModel">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">modeling_siglip.</span></span><span class="sig-name descname"><span class="pre">SiglipVisionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipVisionModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipVisionModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Wrapper for the Siglip vision transformer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipVisionModel.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipVisionModel.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipVisionModel.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipVisionTransformer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">modeling_siglip.</span></span><span class="sig-name descname"><span class="pre">SiglipVisionTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipVisionTransformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipVisionTransformer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Vision Transformer model combining embeddings and encoder.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="modeling_siglip.SiglipVisionTransformer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_siglip.html#SiglipVisionTransformer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_siglip.SiglipVisionTransformer.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-modeling_gemma">
+<dt class="sig sig-object py" id="modeling_gemma.GemmaConfig">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">modeling_gemma.</span></span><span class="sig-name descname"><span class="pre">GemmaConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vocab_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intermediate_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_hidden_layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_attention_heads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_key_value_heads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_position_embeddings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8192</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rms_norm_eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rope_theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_dropout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_token_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_gemma.html#GemmaConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_gemma.GemmaConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="modeling_gemma.GemmaForCausalLM">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">modeling_gemma.</span></span><span class="sig-name descname"><span class="pre">GemmaForCausalLM</span></span><a class="reference internal" href="_modules/modeling_gemma.html#GemmaForCausalLM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_gemma.GemmaForCausalLM" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="modeling_gemma.KVCache">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">modeling_gemma.</span></span><span class="sig-name descname"><span class="pre">KVCache</span></span><a class="reference internal" href="_modules/modeling_gemma.html#KVCache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_gemma.KVCache" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="modeling_gemma.PaliGemmaConfig">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">modeling_gemma.</span></span><span class="sig-name descname"><span class="pre">PaliGemmaConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vision_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_token_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vocab_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">257152</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2048</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2048</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_token_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_gemma.html#PaliGemmaConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_gemma.PaliGemmaConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="modeling_gemma.PaliGemmaForConditionalGeneration">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">modeling_gemma.</span></span><span class="sig-name descname"><span class="pre">PaliGemmaForConditionalGeneration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_gemma.html#PaliGemmaForConditionalGeneration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_gemma.PaliGemmaForConditionalGeneration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="modeling_gemma.PaliGemmaForConditionalGeneration.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kv_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_gemma.html#PaliGemmaForConditionalGeneration.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_gemma.PaliGemmaForConditionalGeneration.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="modeling_gemma.PaliGemmaForConditionalGeneration.tie_weights">
+<span class="sig-name descname"><span class="pre">tie_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_gemma.html#PaliGemmaForConditionalGeneration.tie_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_gemma.PaliGemmaForConditionalGeneration.tie_weights" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="modeling_gemma.PaliGemmaMultiModalProjector">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">modeling_gemma.</span></span><span class="sig-name descname"><span class="pre">PaliGemmaMultiModalProjector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_gemma.html#PaliGemmaMultiModalProjector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_gemma.PaliGemmaMultiModalProjector" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="modeling_gemma.PaliGemmaMultiModalProjector.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_featuers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_gemma.html#PaliGemmaMultiModalProjector.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_gemma.PaliGemmaMultiModalProjector.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Intisar Chowdhury.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
