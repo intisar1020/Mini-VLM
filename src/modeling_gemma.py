@@ -187,8 +187,13 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         # 1. extract the input embeddings.
         # shape: (batch_size, seq_len, hidden_size)
 <<<<<<< HEAD
+<<<<<<< HEAD
         input_embeds = self.language_mmodel.get_input_embeddings()(inputs_ids)
         
+=======
+        inputs_embeds = self.language_mmodel.get_input_embeddings()(input_ids)
+
+>>>>>>> acc54fd103447f07018f2a85162e7ec135f41aba
 =======
         inputs_embeds = self.language_mmodel.get_input_embeddings()(input_ids)
 
@@ -201,6 +206,7 @@ class PaliGemmaForConditionalGeneration(nn.Module):
 
         # 4. merge the token from vision model to the text token (fill up place-holder)
 <<<<<<< HEAD
+<<<<<<< HEAD
         input_embeds, attention_mask, position_ids = self._merge_input_ids_with_image_features(
             image_features, # from vit.
             inputs_embeds, # from llm
@@ -208,6 +214,8 @@ class PaliGemmaForConditionalGeneration(nn.Module):
             attention_mask, # from tokenizer.
             kv_cache # cache for optimality.
 =======
+=======
+>>>>>>> acc54fd103447f07018f2a85162e7ec135f41aba
         input_embeds, attention_mask, position_ids = (
             self._merge_input_ids_with_image_features(
                 image_features,  # from vit.
@@ -215,6 +223,9 @@ class PaliGemmaForConditionalGeneration(nn.Module):
                 input_ids,  # from tokenizer.
                 attention_mask,  # from tokenizer.
                 kv_cache,  # cache for optimality.
+<<<<<<< HEAD
+>>>>>>> acc54fd103447f07018f2a85162e7ec135f41aba
+=======
 >>>>>>> acc54fd103447f07018f2a85162e7ec135f41aba
             )
         )
@@ -224,7 +235,11 @@ class PaliGemmaForConditionalGeneration(nn.Module):
             position_ids=position_ids,
             inputs_embeds=input_embeds,
 <<<<<<< HEAD
+<<<<<<< HEAD
             kv_cache=kv_cache
+=======
+            kv_cache=kv_cache,
+>>>>>>> acc54fd103447f07018f2a85162e7ec135f41aba
 =======
             kv_cache=kv_cache,
 >>>>>>> acc54fd103447f07018f2a85162e7ec135f41aba
