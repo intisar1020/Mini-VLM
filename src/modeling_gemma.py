@@ -178,11 +178,11 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         
         # 1. extract the input embeddings.
         # shape: (batch_size, seq_len, hidden_size)
-        inputs_embeds = self.language_mmodel.get_input_embeddings()(input_ids)
+        input_embeds = self.language_mmodel.get_input_embeddings()(input_ids)
         
         # 2. Merge text and images.
         # shape: (batch_size),channels, height, width) -> (batch_size, num_patches, embed_dim)
-        selected_image_feature = self.vision_tower(pixel_values.to(inputs_embeds.dtype))
+        selected_image_feature = self.vision_tower(pixel_values.to(input_embeds.dtype))
         
         # 3. resize the image feature into size compatible with the LLM
         image_features = self.multi_modal_projector(selected_image_feature)
@@ -199,7 +199,7 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         outputs = self.language_mmodel(
             attention_mask=attention_mask,
             position_ids=position_ids,
-            inputs_embeds=inputs_embeds,
+            inputs_embeds=input_embeds,
             kv_cache=kv_cache
         )
         
