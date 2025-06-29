@@ -187,7 +187,7 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         
         # 1. extract the input embeddings.
         # shape: (batch_size, seq_len, hidden_size)
-        input_embeds = self.language_mmodel.get_input_embeddings()(inputs_ids)
+        inputs_embeds = self.language_mmodel.get_input_embeddings()(input_ids)
         
         # 2. Merge text and images.
         # shape: (batch_size),channels, height, width) -> (batch_size, num_patches, embed_dim)
