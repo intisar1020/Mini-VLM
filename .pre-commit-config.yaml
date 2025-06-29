@@ -11,4 +11,4 @@ repos:
     rev: v4.5.0  # Check https://github.com/pre-commit/pre-commit-hooks/releases for the latest version
     hooks:
       - id: check-added-large-files
-        args: ['--maxkb=5000']  # Set the max file size limit in kilobytes (here, 5MB)
+        args: ['--maxkb=100']  # Set the max file size limit in kilobytes (here, 100KB)
