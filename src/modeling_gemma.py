@@ -115,10 +115,70 @@ class PaliGemmaForConditionalGeneration(nn.Module):
     def tie_weights(self):
         return self.language_mmodel.tie_weights()
 
+    def _merge_input_ids_with_image_features(
+        self,
+        image_features: torch.FloatTensor = None,
+        inputs_embeds: torch.FloatTensor = None,
+        input_ids: torch.LongTensor = None,
+        attention_mask: Optional[torch.Tensor] = None,
+        Kv_cache: Optional[KVCache] = None        
+    ) -> Tuple[torch.FloatTensor, torch.Tensor, torch.LongTensor]:
+        """ Merges the image features with the input embeddings and returns the final embeddings, attention mask, and position ids.
+
+        Args:
+            image_features (torch.FloatTensor, optional): _description_. Defaults to None.
+            inputs_embeds (torch.FloatTensor, optional): _description_. Defaults to None.
+            input_ids (torch.LongTensor, optional): _description_. Defaults to None.
+            attention_mask (Optional[torch.Tensor], optional): _description_. Defaults to None.
+            Kv_cache (Optional[KVCache], optional): _description_. Defaults to None.
+
+        Returns:
+            Tuple[torch.FloatTensor, torch.Tensor, torch.LongTensor]: _description_
+        """
+        _, _, embed_dim = image_features.shape
+        batch_size, sequence_length = input_ids.shape
+        dtype, device = inputs_embeds.dtype, inputs_embeds.device
+        scaled_image_features = image_features / (self.config.hidden_size ** 0.5)
+        
+        # now we will combine the embedding of the image tokens and the text token
+        # each sequence will have the embedding for image (that is extracted by the vision tower)
+        # and the embedding for the text token that is extracted the embedding extractor of the language model.
+        
+        final_embedding = torch.zeroes(
+            batch_size,
+            sequence_length,
+            embed_dim,
+            dtype=inputs_embeds.dtype,
+            device=inputs_embeds.device
+        )
+        image_mask = input_ids == self.config.image_token_index
+        pad_mask = input_ids == self.pad_token_id
+        text_mask = (input_ids != self.config.image_token_index) & (input_ids != self.pad_token_id)
+        
+        text_mask_expanded = text_mask.unsqueeze(-1).expand(-1, -1, embed_dim)
+        pad_mask_expanded = pad_mask.unsqueeze(-1).expand(-1, -1, embed_dim)
+        image_mask_expanded = image_mask.unsqueeze(-1).expand(-1, -1, embed_dim)
+        
+        # fill the final embedding with the image features
+        final_embedding = torch.where(
+            text_mask_expanded,
+            inputs_embeds,
+            final_embedding
+        )
+        final_embedding = final_embedding.masked_scatter(
+            image_mask_expanded,
+            scaled_image_features,
+        )
+        final_embedding = torch.where(
+            pad_mask_expanded,
+            torch.zeros_like(final_embedding, dtype=dtype, device=device),
+            final_embedding
+        )
+        
 
     def forward(
         self,
-        inputs_ids: torch.LongTensor=None,
+        input_ids: torch.LongTensor=None,
         pixel_values: torch.FloatTensor=None,
         attention_mask: Optional[torch.tensor]=None,
         kv_cache: Optional[KVCache]=None,
@@ -131,16 +191,15 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         
         # 2. Merge text and images.
         # shape: (batch_size),channels, height, width) -> (batch_size, num_patches, embed_dim)
-        selected_image_feature = self.vision_tower(pixel_values.to(input_embeds.dtype))
-        
+        selected_image_feature = self.vision_tower(pixel_values.to(inputs_embeds.dtype))
         # 3. resize the image feature into size compatible with the LLM
         image_features = self.multi_modal_projector(selected_image_feature)
         
         # 4. merge the token from vision model to the text token (fill up place-holder)
         input_embeds, attention_mask, position_ids = self._merge_input_ids_with_image_features(
             image_features, # from vit.
-            input_embeds, # from llm
-            inputs_ids, # from tokenizer.
+            inputs_embeds, # from llm
+            input_ids, # from tokenizer.
             attention_mask, # from tokenizer.
             kv_cache # cache for optimality.
             )
@@ -153,10 +212,6 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         )
         
         return outputs
-
-        
-        
-        
 
 config = SiglipVisionConfig()
 model = SiglipVisionModel(config=config)
