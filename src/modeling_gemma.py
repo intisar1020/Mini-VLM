@@ -195,7 +195,7 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         image_features = self.multi_modal_projector(selected_image_feature)
 
         # 4. merge the token from vision model to the text token (fill up place-holder)
-        input_embeds, attention_mask, position_ids = (
+        inputs_embeds, attention_mask, position_ids = (
             self._merge_input_ids_with_image_features(
                 image_features,  # from vit.
                 inputs_embeds,  # from llm
@@ -208,7 +208,7 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         outputs = self.language_mmodel(
             attention_mask=attention_mask,
             position_ids=position_ids,
-            inputs_embeds=input_embeds,
+            inputs_embeds=inputs_embeds,
             kv_cache=kv_cache,
         )
 
