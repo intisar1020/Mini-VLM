@@ -157,12 +157,21 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         
         text_mask_expanded = text_mask.unsqueeze(-1).expand(-1, -1, embed_dim)
         pad_mask_expanded = pad_mask.unsqueeze(-1).expand(-1, -1, embed_dim)
-        image_pad_expanded = image_mask.unsqueeze(-1).expand(-1, -1, embed_dim)
+        image_mask_expanded = image_mask.unsqueeze(-1).expand(-1, -1, embed_dim)
         
         # fill the final embedding with the image features
         final_embedding = torch.where(
             text_mask_expanded,
             inputs_embeds,
+            final_embedding
+        )
+        final_embedding = final_embedding.masked_scatter(
+            image_mask_expanded,
+            scaled_image_features,
+        )
+        final_embedding = torch.where(
+            pad_mask_expanded,
+            torch.zeros_like(final_embedding, dtype=dtype, device=device),
             final_embedding
         )
         
