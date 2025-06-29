@@ -36,7 +36,7 @@ class SiglipVisionConfig:
         layer_norm_eps: float = 1e-6,
         attention_dropout: float = 0.0,
         num_image_tokens: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         super().__init__()
         self.hidden_size = hidden_size
@@ -74,7 +74,11 @@ class SiglipVisionEmbeddings(nn.Module):
 
         self.num_patches = (self.image_size // self.patch_size) ** 2
         self.position_embedding = nn.Embedding(self.num_patches, self.embed_dim)
-        self.register_buffer("position_ids", torch.arange(self.num_patches).expand((1, -1)), persistent=False)
+        self.register_buffer(
+            "position_ids",
+            torch.arange(self.num_patches).expand((1, -1)),
+            persistent=False,
+        )
 
     def forward(self, pixel_values: torch.Tensor) -> torch.Tensor:
         embeddings = self.patch_embedding(pixel_values).flatten(2).transpose(1, 2)
@@ -109,7 +113,7 @@ class SiglipAttention(nn.Module):
         self.embed_dim = config.hidden_size
         self.num_heads = config.num_attention_heads
         self.head_dim = self.embed_dim // self.num_heads
-        self.scale = self.head_dim ** -0.5
+        self.scale = self.head_dim**-0.5
 
         self.q_proj = nn.Linear(self.embed_dim, self.embed_dim)
         self.k_proj = nn.Linear(self.embed_dim, self.embed_dim)
@@ -117,12 +121,26 @@ class SiglipAttention(nn.Module):
         self.out_proj = nn.Linear(self.embed_dim, self.embed_dim)
         self.dropout = nn.Dropout(config.attention_dropout)
 
-    def forward(self, hidden_states: torch.Tensor) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+    def forward(
+        self, hidden_states: torch.Tensor
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         B, S, E = hidden_states.size()
 
-        q = self.q_proj(hidden_states).view(B, S, self.num_heads, self.head_dim).transpose(1, 2)
-        k = self.k_proj(hidden_states).view(B, S, self.num_heads, self.head_dim).transpose(1, 2)
-        v = self.v_proj(hidden_states).view(B, S, self.num_heads, self.head_dim).transpose(1, 2)
+        q = (
+            self.q_proj(hidden_states)
+            .view(B, S, self.num_heads, self.head_dim)
+            .transpose(1, 2)
+        )
+        k = (
+            self.k_proj(hidden_states)
+            .view(B, S, self.num_heads, self.head_dim)
+            .transpose(1, 2)
+        )
+        v = (
+            self.v_proj(hidden_states)
+            .view(B, S, self.num_heads, self.head_dim)
+            .transpose(1, 2)
+        )
 
         attn_weights = torch.matmul(q, k.transpose(-2, -1)) * self.scale
         attn_weights = torch.softmax(attn_weights, dim=-1)
@@ -167,7 +185,9 @@ class SiglipEncoder(nn.Module):
 
     def __init__(self, config: SiglipVisionConfig) -> None:
         super().__init__()
-        self.layers = nn.ModuleList([SiglipEncoderLayer(config) for _ in range(config.num_hidden_layers)])
+        self.layers = nn.ModuleList(
+            [SiglipEncoderLayer(config) for _ in range(config.num_hidden_layers)]
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         for layer in self.layers:
@@ -247,6 +267,8 @@ if __name__ == "__main__":
 
     expected_patches = (config.image_size // config.patch_size) ** 2
     expected_shape = (input_tensor.shape[0], expected_patches, config.hidden_size)
-    assert output.shape == expected_shape, f"Shape mismatch: expected {expected_shape}, got {output.shape}"
+    assert output.shape == expected_shape, (
+        f"Shape mismatch: expected {expected_shape}, got {output.shape}"
+    )
 
     print("\n--- SUCCESS: Output shape is correct ---")
