@@ -174,6 +174,10 @@ class PaliGemmaForConditionalGeneration(nn.Module):
             torch.zeros_like(final_embedding, dtype=dtype, device=device),
             final_embedding,
         )
+        
+        dtype, device = inputs_embeds.dtype, inputs_embeds.device
+        min_dtype = torch.finfo(dtype).min
+        q_len = inputs_embeds.shape[1]
 
     def forward(
         self,

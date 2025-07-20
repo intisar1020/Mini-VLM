@@ -85,6 +85,15 @@
 <li><a class="reference internal" href="#modeling_gemma.PaliGemmaMultiModalProjector.forward"><code class="docutils literal notranslate"><span class="pre">PaliGemmaMultiModalProjector.forward()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#processing_paligemma.PaliGemmaProcessor"><code class="docutils literal notranslate"><span class="pre">PaliGemmaProcessor</span></code></a><ul>
+<li><a class="reference internal" href="#processing_paligemma.PaliGemmaProcessor.IMAGE_TOKEN"><code class="docutils literal notranslate"><span class="pre">PaliGemmaProcessor.IMAGE_TOKEN</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#processing_paligemma.add_image_tokens_to_prompt"><code class="docutils literal notranslate"><span class="pre">add_image_tokens_to_prompt()</span></code></a></li>
+<li><a class="reference internal" href="#processing_paligemma.normalize"><code class="docutils literal notranslate"><span class="pre">normalize()</span></code></a></li>
+<li><a class="reference internal" href="#processing_paligemma.process_images"><code class="docutils literal notranslate"><span class="pre">process_images()</span></code></a></li>
+<li><a class="reference internal" href="#processing_paligemma.rescale"><code class="docutils literal notranslate"><span class="pre">rescale()</span></code></a></li>
+<li><a class="reference internal" href="#processing_paligemma.resize"><code class="docutils literal notranslate"><span class="pre">resize()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -354,7 +363,7 @@ registered hooks while the latter silently ignores them.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="modeling_gemma.PaliGemmaForConditionalGeneration.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kv_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_gemma.html#PaliGemmaForConditionalGeneration.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_gemma.PaliGemmaForConditionalGeneration.forward" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kv_cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/modeling_gemma.html#PaliGemmaForConditionalGeneration.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#modeling_gemma.PaliGemmaForConditionalGeneration.forward" title="Link to this definition"></a></dt>
 <dd><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -396,6 +405,62 @@ registered hooks while the latter silently ignores them.</p>
 </div>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py class" id="module-processing_paligemma">
+<dt class="sig sig-object py" id="processing_paligemma.PaliGemmaProcessor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">processing_paligemma.</span></span><span class="sig-name descname"><span class="pre">PaliGemmaProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokenizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_image_tokens</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/processing_paligemma.html#PaliGemmaProcessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#processing_paligemma.PaliGemmaProcessor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="processing_paligemma.PaliGemmaProcessor.IMAGE_TOKEN">
+<span class="sig-name descname"><span class="pre">IMAGE_TOKEN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;image&gt;'</span></em><a class="headerlink" href="#processing_paligemma.PaliGemmaProcessor.IMAGE_TOKEN" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="processing_paligemma.add_image_tokens_to_prompt">
+<span class="sig-prename descclassname"><span class="pre">processing_paligemma.</span></span><span class="sig-name descname"><span class="pre">add_image_tokens_to_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix_prompt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bos_token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_seq_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_token</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/processing_paligemma.html#add_image_tokens_to_prompt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#processing_paligemma.add_image_tokens_to_prompt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="processing_paligemma.normalize">
+<span class="sig-prename descclassname"><span class="pre">processing_paligemma.</span></span><span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/processing_paligemma.html#normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#processing_paligemma.normalize" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="processing_paligemma.process_images">
+<span class="sig-prename descclassname"><span class="pre">processing_paligemma.</span></span><span class="sig-name descname"><span class="pre">process_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rescale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_std</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/processing_paligemma.html#process_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#processing_paligemma.process_images" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="processing_paligemma.rescale">
+<span class="sig-prename descclassname"><span class="pre">processing_paligemma.</span></span><span class="sig-name descname"><span class="pre">rescale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.float32'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/processing_paligemma.html#rescale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#processing_paligemma.rescale" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="processing_paligemma.resize">
+<span class="sig-prename descclassname"><span class="pre">processing_paligemma.</span></span><span class="sig-name descname"><span class="pre">resize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reducing_gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/processing_paligemma.html#resize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#processing_paligemma.resize" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
