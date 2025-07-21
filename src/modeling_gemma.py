@@ -8,7 +8,6 @@ class KVCache:
     pass
 
 
-# the llm model
 class GemmaConfig:
     def __init__(
         self,
@@ -42,7 +41,6 @@ class GemmaConfig:
         self.attention_dropout = attention_dropout
         self.pad_token_id = pad_token_id
 
-
 class PaliGemmaConfig:
     def __init__(
         self,
@@ -56,7 +54,7 @@ class PaliGemmaConfig:
         pad_token_id=None,
         **kwargs,
     ):
-        super.__init__()
+        super().__init__()
         self.ignore_index = ignore_index
         self.image_token_index = image_token_index
         self.vocab_size = vocab_size
@@ -77,7 +75,6 @@ class PaliGemmaConfig:
         ) ** 2
         self.vision_config.projection_dim = projection_dim
 
-
 class PaliGemmaMultiModalProjector(nn.Module):
     def __init__(self, config: PaliGemmaConfig):
         super().__init__()
@@ -87,14 +84,19 @@ class PaliGemmaMultiModalProjector(nn.Module):
             bias=True,
         )
 
-    def forward(self, image_featuers):
-        hidden_state = self.Linear(image_featuers)
+    def forward(self, image_features):
+        hidden_state = self.Linear(image_features)
         return hidden_state
-
 
 class GemmaForCausalLM:
     pass
 
+class PaliGemmaMultiModalProjector(nn.Module):
+    def __init__(self, config: PaliGemmaConfig):
+        super().__init__()
+        self.Linear = nn.Linear(
+            config.vision_
+        )
 
 class PaliGemmaForConditionalGeneration(nn.Module):
     def __init__(self, config: PaliGemmaConfig):
@@ -105,7 +107,7 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         self.vocab_sie = config.vocab_size
 
         language_model = GemmaForCausalLM(config.text_config)
-        self.language_mmodel = language_model
+        self.language_model = language_model
 
         if self.config.pad_token_id:
             self.pad_token_id = self.config.pad_token_id
@@ -113,7 +115,7 @@ class PaliGemmaForConditionalGeneration(nn.Module):
             self.pad_token_id = -1
 
     def tie_weights(self):
-        return self.language_mmodel.tie_weights()
+        return self.language_model.tie_weights()
 
     def _merge_input_ids_with_image_features(
         self,
@@ -121,7 +123,7 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         inputs_embeds: torch.FloatTensor = None,
         input_ids: torch.LongTensor = None,
         attention_mask: Optional[torch.Tensor] = None,
-        Kv_cache: Optional[KVCache] = None,
+        kv_cache: Optional[KVCache] = None,
     ) -> Tuple[torch.FloatTensor, torch.Tensor, torch.LongTensor]:
         """Merges the image features with the input embeddings and returns the final embeddings, attention mask, and position ids.
 
@@ -177,7 +179,35 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         
         dtype, device = inputs_embeds.dtype, inputs_embeds.device
         min_dtype = torch.finfo(dtype).min
-        q_len = inputs_embeds.shape[1]
+        q_len = inputs_embeds.shape[1] # sequence length
+        
+        if kv_cache is None or kv_cache.items() == 0:
+            causal_mask = torch.full(
+                (batch_size, q_len, q_len),
+                fill_value=0,
+                dtype=dtype,
+                device=device,
+            )
+        else:
+            assert q_len == 1
+            kv_len = kv_cache.num_items() + 1
+            causal_mask = torch.full(
+                (batch_size, q_len, kv_len),
+                fill_value=0,
+                dtype=dtype,
+                device=device,
+            )
+        causal_mask = causal_mask.unsqueeze(1) # [batch_size, 1, q_len, kv_len]
+        
+        if kv_cache is not None and kv_cache.num_items() > 0:
+            position_ids = attention_mask.cumsum(-1)[:, -1]
+            if position_ids.dim() == 1:
+                position_ids = position_ids.unsqueeze(0)
+        else:
+            position_ids = (attention_mask.cumsum(-1)).masked_fill_((attention_mask == 0), 1).to(device)
+
+        return final_embedding, causal_mask, position_ids
+
 
     def forward(
         self,
@@ -190,7 +220,7 @@ class PaliGemmaForConditionalGeneration(nn.Module):
 
         # 1. extract the input embeddings.
         # shape: (batch_size, seq_len, hidden_size)
-        inputs_embeds = self.language_mmodel.get_input_embeddings()(input_ids)
+        inputs_embeds = self.language_model.get_input_embeddings()(input_ids)
 
         # 2. Merge text and images.
         # shape: (batch_size),channels, height, width) -> (batch_size, num_patches, embed_dim)
@@ -208,8 +238,8 @@ class PaliGemmaForConditionalGeneration(nn.Module):
                 kv_cache,  # cache for optimality.
             )
         )
-
-        outputs = self.language_mmodel(
+        # To do: Implement the language model.
+        outputs = self.language_model(
             attention_mask=attention_mask,
             position_ids=position_ids,
             inputs_embeds=inputs_embeds,
