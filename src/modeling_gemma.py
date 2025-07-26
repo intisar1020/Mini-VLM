@@ -92,7 +92,9 @@ class PaliGemmaMultiModalProjector(nn.Module):
 
 
 class GemmaForCausalLM:
-    pass
+    raise NotImplementedError(
+        "GemmaForCausalLM is not implemented in this example. You need to implement it or import it from the appropriate library."
+    )
 
 
 class PaliGemmaForConditionalGeneration(nn.Module):
