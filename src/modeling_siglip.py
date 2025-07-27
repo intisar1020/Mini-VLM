@@ -2,6 +2,7 @@ from typing import Optional, Tuple
 import torch
 import torch.nn as nn
 
+
 class SiglipVisionConfig:
     """
     Configuration class for the Siglip Vision Transformer model.
@@ -18,6 +19,7 @@ class SiglipVisionConfig:
         attention_dropout (float): The dropout ratio for the attention probabilities.
         num_image_tokens (Optional[int]): The number of image tokens. If None, it is calculated from image_size and patch_size.
     """
+
     def __init__(
         self,
         hidden_size: int = 768,
@@ -30,7 +32,7 @@ class SiglipVisionConfig:
         layer_norm_eps: float = 1e-6,
         attention_dropout: float = 0.0,
         num_image_tokens: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__()
 
@@ -50,6 +52,7 @@ class SiglipVisionEmbeddings(nn.Module):
     """
     Converts input image pixel values into patch embeddings and adds positional embeddings.
     """
+
     def __init__(self, config: SiglipVisionConfig):
         super().__init__()
         self.config = config
@@ -95,6 +98,7 @@ class SiglipAttention(nn.Module):
     """
     Multi-headed attention mechanism for the Siglip Vision Transformer.
     """
+
     def __init__(self, config: SiglipVisionConfig):
         super().__init__()
         self.config = config
@@ -129,11 +133,19 @@ class SiglipAttention(nn.Module):
         key_states = self.k_proj(hidden_states)
         value_states = self.v_proj(hidden_states)
 
-        query_states = query_states.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
-        key_states = key_states.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
-        value_states = value_states.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        query_states = query_states.view(
+            batch_size, seq_len, self.num_heads, self.head_dim
+        ).transpose(1, 2)
+        key_states = key_states.view(
+            batch_size, seq_len, self.num_heads, self.head_dim
+        ).transpose(1, 2)
+        value_states = value_states.view(
+            batch_size, seq_len, self.num_heads, self.head_dim
+        ).transpose(1, 2)
 
-        attn_weights = (torch.matmul(query_states, key_states.transpose(2, 3)) * self.scale)
+        attn_weights = (
+            torch.matmul(query_states, key_states.transpose(2, 3)) * self.scale
+        )
 
         if attn_weights.size() != (batch_size, self.num_heads, seq_len, seq_len):
             raise ValueError(
@@ -141,8 +153,12 @@ class SiglipAttention(nn.Module):
                 f" {attn_weights.size()}"
             )
 
-        attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
-        attn_weights = nn.functional.dropout(attn_weights, p=self.dropout, training=self.training)
+        attn_weights = nn.functional.softmax(
+            attn_weights, dim=-1, dtype=torch.float32
+        ).to(query_states.dtype)
+        attn_weights = nn.functional.dropout(
+            attn_weights, p=self.dropout, training=self.training
+        )
         attn_output = torch.matmul(attn_weights, value_states)
 
         if attn_output.size() != (batch_size, self.num_heads, seq_len, self.head_dim):
@@ -161,6 +177,7 @@ class SiglipMLP(nn.Module):
     """
     Multi-layer Perceptron (MLP) block used in the Transformer encoder layers.
     """
+
     def __init__(self, config: SiglipVisionConfig):
         super().__init__()
         self.config = config
@@ -185,6 +202,7 @@ class SiglipEncoderLayer(nn.Module):
     """
     A single encoder layer of the Siglip Vision Transformer.
     """
+
     def __init__(self, config: SiglipVisionConfig):
         super().__init__()
         self.embed_dim = config.hidden_size
@@ -193,10 +211,7 @@ class SiglipEncoderLayer(nn.Module):
         self.mlp = SiglipMLP(config)
         self.layer_norm2 = nn.LayerNorm(self.embed_dim, eps=config.layer_norm_eps)
 
-    def forward(
-        self,
-        hidden_states: torch.Tensor
-    ) -> torch.Tensor:
+    def forward(self, hidden_states: torch.Tensor) -> torch.Tensor:
         """
         Args:
             hidden_states (torch.Tensor): Input hidden states of shape `(batch_size, sequence_length, embed_dim)`.
@@ -208,12 +223,12 @@ class SiglipEncoderLayer(nn.Module):
         hidden_states = self.layer_norm1(hidden_states)
         hidden_states, _ = self.self_attn(hidden_states=hidden_states)
         hidden_states = residual + hidden_states
-        
+
         residual = hidden_states
         hidden_states = self.layer_norm2(hidden_states)
         hidden_states = self.mlp(hidden_states)
         hidden_states = residual + hidden_states
-        
+
         return hidden_states
 
 
@@ -221,6 +236,7 @@ class SiglipEncoder(nn.Module):
     """
     The encoder stack of Siglip Vision Transformer, consisting of multiple EncoderLayers.
     """
+
     def __init__(self, config: SiglipVisionConfig):
         super().__init__()
         self.config = config
@@ -228,10 +244,7 @@ class SiglipEncoder(nn.Module):
             [SiglipEncoderLayer(config) for _ in range(config.num_hidden_layers)]
         )
 
-    def forward(
-        self,
-        inputs_embeds: torch.Tensor
-    ) -> torch.Tensor:
+    def forward(self, inputs_embeds: torch.Tensor) -> torch.Tensor:
         """
         Args:
             inputs_embeds (torch.Tensor): Input embeddings of shape `(batch_size, sequence_length, embed_dim)`.
@@ -252,6 +265,7 @@ class SiglipVisionTransformer(nn.Module):
     """
     The main Vision Transformer model for Siglip, integrating embeddings and the encoder.
     """
+
     def __init__(self, config: SiglipVisionConfig):
         super().__init__()
         self.config = config
@@ -280,6 +294,7 @@ class SiglipVisionModel(nn.Module):
     """
     Siglip Vision Model wrapper.
     """
+
     def __init__(self, config: SiglipVisionConfig):
         super().__init__()
         self.config = config
@@ -296,20 +311,21 @@ class SiglipVisionModel(nn.Module):
         """
         return self.vision_model(pixel_values=pixel_values)
 
+
 if __name__ == "__main__":
     print("\n--- Siglip Vision Model Test ---")
 
     # Define a minimal configuration for testing
     config = SiglipVisionConfig(
-        hidden_size=64,
+        hidden_size=768,
         intermediate_size=128,
-        num_hidden_layers=2,
+        num_hidden_layers=16,
         num_attention_heads=4,
         num_channels=3,
-        image_size=32,
-        patch_size=8,
+        image_size=224,
+        patch_size=16,
         layer_norm_eps=1e-6,
-        attention_dropout=0.0
+        attention_dropout=0.0,
     )
 
     print("\n--- Configuration ---")
@@ -320,10 +336,13 @@ if __name__ == "__main__":
     print("\n--- Initializing Model ---")
     model = SiglipVisionModel(config)
     print(model)
-
+    params = sum(p.numel() for p in model.parameters() if p.requires_grad) / 1e6
+    print(f"\n--- Total Trainable Parameters: {params}M ---")
     # Test input
     batch_size = 2
-    test_input = torch.randn(batch_size, config.num_channels, config.image_size, config.image_size)
+    test_input = torch.randn(
+        batch_size, config.num_channels, config.image_size, config.image_size
+    )
     print(f"\n--- Test Input Shape: {test_input.shape} ---")
 
     # Perform forward pass
@@ -339,8 +358,9 @@ if __name__ == "__main__":
 
     print(f"--- Expected Output Shape: {expected_output_shape} ---")
 
-    assert output.shape == expected_output_shape, \
+    assert output.shape == expected_output_shape, (
         f"Output shape mismatch! Expected {expected_output_shape}, but got {output.shape}"
+    )
 
     print("\n--- Input-Output Test Passed Successfully! ---")
     print(f"Model output data type: {output.dtype}")
@@ -348,13 +368,16 @@ if __name__ == "__main__":
 
     # Optional: Test with a different batch size
     print("\n--- Testing with a different batch size ---")
-    test_input_large_batch = torch.randn(4, config.num_channels, config.image_size, config.image_size)
+    test_input_large_batch = torch.randn(
+        4, config.num_channels, config.image_size, config.image_size
+    )
     with torch.no_grad():
         output_large_batch = model(test_input_large_batch)
-    
+
     expected_output_shape_large_batch = (4, expected_num_patches, config.hidden_size)
     print(f"--- Test Input Shape (large batch): {test_input_large_batch.shape} ---")
     print(f"--- Test Output Shape (large batch): {output_large_batch.shape} ---")
-    assert output_large_batch.shape == expected_output_shape_large_batch, \
+    assert output_large_batch.shape == expected_output_shape_large_batch, (
         f"Output shape mismatch for large batch! Expected {expected_output_shape_large_batch}, but got {output_large_batch.shape}"
+    )
     print("\n--- Large Batch Test Passed Successfully! ---")
