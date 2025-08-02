@@ -95,20 +95,6 @@ class PaliGemmaConfig:
         self.vision_config.projection_dim = projection_dim
 
 
-class PaliGemmaMultiModalProjector(nn.Module):
-    def __init__(self, config: PaliGemmaConfig):
-        super().__init__()
-        self.Linear = nn.Linear(
-            config.vision_config.hidden_size,
-            config.vision_config.projection_dim,
-            bias=True,
-        )
-
-    def forward(self, image_features):
-        hidden_state = self.Linear(image_features)
-        return hidden_state
-
-
 class GemmaForCausalLM:
     def __init__(self, config):
         super().__init__()
@@ -124,10 +110,41 @@ class GemmaForCausalLM:
     def tie_weights(self):
         self.lm_head.weight = self.model.embed_tokens.weight
     
-    def forward(self, input):
-        pass
+    def forward(
+            self,
+            attention_mask: Optional[torch.Tensor] = None,
+            position_ids: Optional[torch.Tensor] = None,
+            inputs_embeds: Optional[torch.FloatTensor] = None,
+            kv_cache: Optional[KVCache] = None,
+    ) -> Tuple:
+        outputs = self.model(
+            attention_mask=attention_mask,
+            position_ids=position_ids,
+            inputs_embeds=inputs_embeds,
+            kv_cache=kv_cache,
+        )
+        hidden_states = outputs
+        logits = self.lm_head(hidden_states)
+        return_data = {
+            "logits": logits
+        }
+        if kv_cache is not None:
+            return_data["kv_cache"] = kv_cache
+        return return_data
 
+class PaliGemmaMultiModalProjector(nn.Module):
+    def __init__(self, config: PaliGemmaConfig):
+        super().__init__()
+        self.Linear = nn.Linear(
+            config.vision_config.hidden_size,
+            config.vision_config.projection_dim,
+            bias=True,
+        )
 
+    def forward(self, image_features):
+        hidden_state = self.Linear(image_features)
+        return hidden_state
+    
 class PaliGemmaForConditionalGeneration(nn.Module):
     def __init__(self, config: PaliGemmaConfig):
         super().__init__()
