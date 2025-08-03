@@ -23,7 +23,17 @@ class KVCache(object):
         value_states: torch.Tensor,
         layer_idx: int,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        pass
+        if len(self.key_cache) <= layer_idx:
+            self.key_cache.append(key_states)
+            self.value_cache.append(value_states)
+        else:
+            self.key_cache[layer_idx] = torch.cat(
+                [self.key_cache[layer_idx], key_states], dim=-2
+            )
+            self.value_cache[layer_idx] = torch.cat(
+                [self.value_cache[layer_idx], value_states], dim=-2
+            )
+        return self.key_cache[layer_idx], self.value_cache[layer_idx]
 
 
 class GemmaConfig:
@@ -184,9 +194,42 @@ class GemmaAttention(nn.Module):
         position_ids: Optional[torch.Tensor] = None,
         kv_cache: Optional[KVCache] = None,
         **kwargs,
-    ) -> torch.Tensor:
-        pass
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
+        # hidden_states: [Batch_Size, Seq_Len, Hidden_Size]
+        bsz, q_len, _ = hidden_states.size()
+        query_states = self.q_proj(hidden_states) # [Batch_Size, Seq_Len, Num_Heads * Head_Dim]
+        key_states = self.k_proj(hidden_states) # [Batch_Size, Seq_Len, Num_Key_Value_Heads * Head_Dim]
+        value_states = self.v_proj(hidden_states) # [Batch_Size, Seq_Len, Num_Key_Value_Heads * Head_Dim]
+        # Reshape to [Batch_Size, Seq_Len, Num_Heads, Head_Dim]
+        query_states  = query_states.view(bsz, q_len, self.num_heads, self.head_dim)
+        query_states = query_states.transpose(1, 2)  # [Batch_Size, Num_Heads, Seq_Len, Head_Dim]
+        key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
+        key_states = key_states.transpose(1, 2)  # [Batch_Size, Num_Key_Value_Heads, Seq_Len, Head_Dim]
+        value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
+        value_states = value_states.transpose(1, 2)  # [Batch_Size, Num_Key_Value_Heads, Seq_Len, Head_Dim]
 
+        cos, sin = self.rotary_emb(
+            value_states,
+            position_ids,
+            seq_len=None)
+        
+        query_states, key_states = self.apply_rotary_pos_emb(
+            query_states,
+            key_states,
+            cos,
+            sin,
+        )
+
+        if kv_cache is not None:
+            key_states, value_states = kv_cache.update(
+                key_states,
+                value_states,
+                self.layer_idx, 
+            )
+        key_states = repeat
+
+       
+        
 class GemmaDecoderLayer:
     def __init__(
             self,
