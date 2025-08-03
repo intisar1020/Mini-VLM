@@ -94,6 +94,142 @@ class PaliGemmaConfig:
         ) ** 2
         self.vision_config.projection_dim = projection_dim
 
+class GemmaRMSNorm(nn.Module):
+    def __init__(self, dim: int, eps: float = 1e-6):
+        super().__init__()
+        self.eps = eps
+        self.weight = nn.Parameter(torch.zeros(dim))
+
+    def _norm(self, x):
+        return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
+
+    def forward(self, x):
+        output = self._norm(x.float())
+        output = output * (1.0 + self.weight.float())
+        return output.type_as(x)
+
+class GemmaMLP(nn.Module):
+    def __init__(self, config):
+        super().__init__()
+        self.config = config
+        self.hidden_size = config.hidden_size
+        self.intermediate_size = config.intermediate_size
+        self.gate_proj = nn.Linear(
+            self.hidden_size,
+            self.intermediate_size,
+            bias=False,
+        )
+        self.up_proj = nn.Linear(
+            self.hidden_size,
+            self.intermediate_size,
+            bias=False,
+        )
+        self.down_proj = nn.Linear(
+            self.intermediate_size,
+            self.hidden_size,
+            bias=False,
+        )
+    def forward(self, hidden_states: torch.FloatTensor) -> torch.FloatTensor:
+        # hidden_states: [Batch_Size, Seq_Len, Hidden_Size]
+        gate_output = torch.gelu(self.gate_proj(hidden_states), approximate="tanh")
+        up_output = self.up_proj(hidden_states)
+        return self.down_proj(gate_output * up_output)
+
+
+class GemmaAttention(nn.Module):
+    def __init__(
+            self,
+            config: GemmaConfig,
+            layer_idx: int,
+    ):
+        super().__init__()
+        self.config = config
+        self.layer_idx = layer_idx
+        self.attention_dropout = config.attention_dropout
+        self.hidden_size = config.hidden_size
+        self.num_heads = config.num_attention_heads
+        self.head_dim = config.head_dim
+        self.num_key_value_heads = config.num_key_value_heads
+        self.num_key_value_groups = self.num_heads // self.num_key_value_heads
+        self.max_position_embeddings = config.max_position_embeddings
+        self.rope_theta = config.rope_theta
+        self.is_causal = True
+
+        self.q_proj = nn.Linear(
+            self.hidden_size,
+            self.num_heads * self.head_dim,
+            bias=False,
+        )
+        self.k_proj = nn.Linear(
+            self.hidden_size,
+            self.num_key_value_heads * self.head_dim,
+            bias=False,
+        )
+        self.v_proj = nn.Linear(
+            self.hidden_size,
+            self.num_key_value_heads * self.head_dim,
+            bias=False,
+        )
+        self.o_proj = nn.Linear(
+            self.num_heads * self.head_dim,
+            self.hidden_size,
+            bias=False,
+        )
+        self.rotary_emb = None
+    
+    def forward(
+        self,
+        hidden_states: torch.Tensor,
+        attention_mask: Optional[torch.Tensor] = None,
+        position_ids: Optional[torch.Tensor] = None,
+        kv_cache: Optional[KVCache] = None,
+        **kwargs,
+    ) -> torch.Tensor:
+        pass
+
+class GemmaDecoderLayer:
+    def __init__(
+            self,
+            config: GemmaConfig,
+            layer_idx: int,
+    ):
+        self.hidden_size = config.hidden_size
+        self.self_attn = GemmaAttention
+
+class GemmaModel(nn.Module):
+    def __init__(self, config: GemmaConfig):
+        super().__init__()
+        self.config = config
+        self.padding_idx = config.pad_token_id
+        self.vocab_size = config.vocab_size
+
+        self.embed_tokens = nn.Embedding(
+            config.vocab_size, 
+            config.hidden_size, 
+            self.padding_idx
+        )
+        self.layers = nn.ModuleList(
+            [GemmaDecoderLayer(config, layer_idx)
+             for layer_idx in range(config.num_hidden_layers)]
+        )
+        self.norm = GemmaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
+
+    def get_input_embeddings(self):
+        return self.embed_tokens
+    
+    def forward(
+        self,
+        attention_mask: Optional[torch.Tensor] = None,
+        position_ids: Optional[torch.Tensor] = None,
+        inputs_embeds: Optional[torch.FloatTensor] = None,
+        kv_cache: Optional[KVCache] = None,
+    ) -> torch.FloatTensor:
+        # [Batch_Size, Seq_Len, Hidden_Size]
+        hidden_states = inputs_embeds
+        # [Batch_Size, Seq_Len, Hidden_Size]
+        normalizer = torch.tensor(self.config.hidden_size**0.5, dtype=hidden_states.dtype)
+        hidden_states = hidden_states * normalizer
+
 
 class GemmaForCausalLM:
     def __init__(self, config):
@@ -313,3 +449,5 @@ model = SiglipVisionModel(config=config)
 print(model)
 
 pali = PaliGemmaForConditionalGeneration()
+gemma_model = GemmaForCausalLM(config=pali.config.text_config)
+print(gemma_model)
