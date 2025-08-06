@@ -6,6 +6,7 @@ from typing import Optional, Tuple, List
 
 class SiglipVisionConfig:
     """A dummy config for SiglipVisionModel."""
+
     def __init__(self, **kwargs):
         self.hidden_size = kwargs.get("hidden_size", 1024)
         self.image_size = kwargs.get("image_size", 224)
@@ -15,17 +16,29 @@ class SiglipVisionConfig:
         self.num_attention_heads = kwargs.get("num_attention_heads", 16)
         self.num_hidden_layers = kwargs.get("num_hidden_layers", 24)
 
+
 class SiglipVisionModel(nn.Module):
     """A dummy SiglipVisionModel to show the structure."""
+
     def __init__(self, config: SiglipVisionConfig):
         super().__init__()
         self.config = config
-        self.patch_embed = nn.Conv2d(3, config.hidden_size, kernel_size=config.patch_size, stride=config.patch_size)
-        self.encoder = nn.Sequential(*[nn.Linear(config.hidden_size, config.hidden_size) for _ in range(config.num_hidden_layers)])
+        self.patch_embed = nn.Conv2d(
+            3,
+            config.hidden_size,
+            kernel_size=config.patch_size,
+            stride=config.patch_size,
+        )
+        self.encoder = nn.Sequential(
+            *[
+                nn.Linear(config.hidden_size, config.hidden_size)
+                for _ in range(config.num_hidden_layers)
+            ]
+        )
         self.pooler = nn.AdaptiveAvgPool1d(1)
 
     def forward(self, pixel_values, **kwargs):
-       return torch.randn(pixel_values.shape[0], 576, self.config.hidden_size)
+        return torch.randn(pixel_values.shape[0], 576, self.config.hidden_size)
 
 
 class KVCache(object):
@@ -113,6 +126,7 @@ class PaliGemmaConfig:
         ) ** 2
         self.vision_config.projection_dim = projection_dim
 
+
 class GemmaRMSNorm(nn.Module):
     def __init__(self, dim: int, eps: float = 1e-6):
         super().__init__()
@@ -126,21 +140,17 @@ class GemmaRMSNorm(nn.Module):
         output = self._norm(x.float())
         return (output * self.weight).type_as(x)
 
+
 class GemmaMLP(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.config = config
         self.hidden_size = config.hidden_size
         self.intermediate_size = config.intermediate_size
-        self.gate_proj = nn.Linear(
-            self.hidden_size, self.intermediate_size, bias=False
-        )
-        self.up_proj = nn.Linear(
-            self.hidden_size, self.intermediate_size, bias=False
-        )
-        self.down_proj = nn.Linear(
-            self.intermediate_size, self.hidden_size, bias=False
-        )
+        self.gate_proj = nn.Linear(self.hidden_size, self.intermediate_size, bias=False)
+        self.up_proj = nn.Linear(self.hidden_size, self.intermediate_size, bias=False)
+        self.down_proj = nn.Linear(self.intermediate_size, self.hidden_size, bias=False)
+
     def forward(self, hidden_states: torch.FloatTensor) -> torch.FloatTensor:
         gate_output = F.gelu(self.gate_proj(hidden_states))
         up_output = self.up_proj(hidden_states)
@@ -149,9 +159,9 @@ class GemmaMLP(nn.Module):
 
 class GemmaAttention(nn.Module):
     def __init__(
-            self,
-            config: GemmaConfig,
-            layer_idx: int,
+        self,
+        config: GemmaConfig,
+        layer_idx: int,
     ):
         super().__init__()
         self.config = config
@@ -166,12 +176,20 @@ class GemmaAttention(nn.Module):
         self.rope_theta = config.rope_theta
         self.is_causal = True
 
-        self.q_proj = nn.Linear(self.hidden_size, self.num_heads * self.head_dim, bias=False)
-        self.k_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim, bias=False)
-        self.v_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim, bias=False)
-        self.o_proj = nn.Linear(self.num_heads * self.head_dim, self.hidden_size, bias=False)
+        self.q_proj = nn.Linear(
+            self.hidden_size, self.num_heads * self.head_dim, bias=False
+        )
+        self.k_proj = nn.Linear(
+            self.hidden_size, self.num_key_value_heads * self.head_dim, bias=False
+        )
+        self.v_proj = nn.Linear(
+            self.hidden_size, self.num_key_value_heads * self.head_dim, bias=False
+        )
+        self.o_proj = nn.Linear(
+            self.num_heads * self.head_dim, self.hidden_size, bias=False
+        )
         self.rotary_emb = None
-    
+
     def forward(
         self,
         hidden_states: torch.Tensor,
@@ -179,11 +197,12 @@ class GemmaAttention(nn.Module):
     ) -> torch.Tensor:
         return hidden_states
 
+
 class GemmaDecoderLayer(nn.Module):
     def __init__(
-            self,
-            config: GemmaConfig,
-            layer_idx: int,
+        self,
+        config: GemmaConfig,
+        layer_idx: int,
     ):
         super().__init__()
         self.hidden_size = config.hidden_size
@@ -193,10 +212,13 @@ class GemmaDecoderLayer(nn.Module):
         )
         self.mlp = GemmaMLP(config)
         self.input_layernorm = GemmaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
-        self.post_attention_layernorm = GemmaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
+        self.post_attention_layernorm = GemmaRMSNorm(
+            config.hidden_size, eps=config.rms_norm_eps
+        )
 
     def forward(self, hidden_states: torch.Tensor, **kwargs) -> torch.Tensor:
-       return hidden_states
+        return hidden_states
+
 
 class GemmaModel(nn.Module):
     def __init__(self, config: GemmaConfig):
@@ -205,13 +227,20 @@ class GemmaModel(nn.Module):
         self.padding_idx = config.pad_token_id
         self.vocab_size = config.vocab_size
 
-        self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size, self.padding_idx)
-        self.layers = nn.ModuleList([GemmaDecoderLayer(config, layer_idx) for layer_idx in range(config.num_hidden_layers)])
+        self.embed_tokens = nn.Embedding(
+            config.vocab_size, config.hidden_size, self.padding_idx
+        )
+        self.layers = nn.ModuleList(
+            [
+                GemmaDecoderLayer(config, layer_idx)
+                for layer_idx in range(config.num_hidden_layers)
+            ]
+        )
         self.norm = GemmaRMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
     def get_input_embeddings(self):
         return self.embed_tokens
-    
+
     def forward(
         self,
         inputs_embeds: Optional[torch.FloatTensor] = None,
@@ -219,15 +248,20 @@ class GemmaModel(nn.Module):
     ) -> torch.FloatTensor:
         hidden_states = inputs_embeds
         if hidden_states is None:
-             raise ValueError("You have to specify inputs_embeds")
-        normalizer = torch.tensor(self.config.hidden_size**0.5, dtype=hidden_states.dtype, device=hidden_states.device)
+            raise ValueError("You have to specify inputs_embeds")
+        normalizer = torch.tensor(
+            self.config.hidden_size**0.5,
+            dtype=hidden_states.dtype,
+            device=hidden_states.device,
+        )
         hidden_states = hidden_states * normalizer
-        
+
         for decoder_layer in self.layers:
             hidden_states = decoder_layer(hidden_states, **kwargs)
-        
+
         hidden_states = self.norm(hidden_states)
         return hidden_states
+
 
 class GemmaForCausalLM(nn.Module):
     def __init__(self, config):
@@ -235,31 +269,37 @@ class GemmaForCausalLM(nn.Module):
         self.config = config
         self.model = GemmaModel(config)
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
-    
+
     def get_input_embeddings(self):
         return self.model.embed_tokens
-    
+
     def tie_weights(self):
         self.lm_head.weight = self.model.embed_tokens.weight
-    
+
     def forward(
-            self,
-            inputs_embeds: Optional[torch.FloatTensor] = None,
-            **kwargs,
+        self,
+        inputs_embeds: Optional[torch.FloatTensor] = None,
+        **kwargs,
     ) -> dict:
         hidden_states = self.model(inputs_embeds=inputs_embeds, **kwargs)
         logits = self.lm_head(hidden_states)
         return {"logits": logits}
 
+
 class PaliGemmaMultiModalProjector(nn.Module):
     def __init__(self, config: PaliGemmaConfig):
         super().__init__()
-        self.linear = nn.Linear(config.vision_config.hidden_size, config.vision_config.projection_dim, bias=True)
+        self.linear = nn.Linear(
+            config.vision_config.hidden_size,
+            config.vision_config.projection_dim,
+            bias=True,
+        )
 
     def forward(self, image_features):
         hidden_state = self.linear(image_features)
         return hidden_state
-    
+
+
 class PaliGemmaForConditionalGeneration(nn.Module):
     def __init__(self, config: PaliGemmaConfig):
         super().__init__()
@@ -268,7 +308,9 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         self.multi_modal_projector = PaliGemmaMultiModalProjector(config)
         self.vocab_size = config.vocab_size
         self.language_model = GemmaForCausalLM(config.text_config)
-        self.pad_token_id = self.config.pad_token_id if self.config.pad_token_id is not None else -1
+        self.pad_token_id = (
+            self.config.pad_token_id if self.config.pad_token_id is not None else -1
+        )
 
     def tie_weights(self):
         return self.language_model.tie_weights()
@@ -281,8 +323,11 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         **kwargs,
     ) -> Tuple[torch.FloatTensor, torch.Tensor, torch.LongTensor]:
         final_embedding = torch.zeros_like(inputs_embeds)
-        return final_embedding, torch.ones_like(input_ids), torch.arange(input_ids.shape[1], device=input_ids.device)
-
+        return (
+            final_embedding,
+            torch.ones_like(input_ids),
+            torch.arange(input_ids.shape[1], device=input_ids.device),
+        )
 
     def forward(
         self,
@@ -294,11 +339,13 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         inputs_embeds = self.language_model.get_input_embeddings()(input_ids)
         selected_image_feature = self.vision_tower(pixel_values.to(inputs_embeds.dtype))
         image_features = self.multi_modal_projector(selected_image_feature)
-        
-        inputs_embeds, attention_mask, position_ids = self._merge_input_ids_with_image_features(
-            image_features, inputs_embeds, input_ids, attention_mask=attention_mask
+
+        inputs_embeds, attention_mask, position_ids = (
+            self._merge_input_ids_with_image_features(
+                image_features, inputs_embeds, input_ids, attention_mask=attention_mask
+            )
         )
-        
+
         outputs = self.language_model(
             attention_mask=attention_mask,
             position_ids=position_ids,
@@ -307,15 +354,25 @@ class PaliGemmaForConditionalGeneration(nn.Module):
         )
         return outputs
 
+
 dummy_vision_config_dict = {
-    "hidden_size": 1024, "image_size": 224, "intermediate_size": 4096,
-    "num_attention_heads": 16, "num_hidden_layers": 2, "patch_size": 14,
+    "hidden_size": 1024,
+    "image_size": 224,
+    "intermediate_size": 4096,
+    "num_attention_heads": 16,
+    "num_hidden_layers": 2,
+    "patch_size": 14,
 }
 
 dummy_text_config_dict = {
-    "vocab_size": 257152, "hidden_size": 2048, "intermediate_size": 8192,
-    "num_hidden_layers": 2, "num_attention_heads": 8, "num_key_value_heads": 1,
-    "head_dim": 256, "max_position_embeddings": 4096,
+    "vocab_size": 257152,
+    "hidden_size": 2048,
+    "intermediate_size": 8192,
+    "num_hidden_layers": 2,
+    "num_attention_heads": 8,
+    "num_key_value_heads": 1,
+    "head_dim": 256,
+    "max_position_embeddings": 4096,
 }
 
 paligemma_config = PaliGemmaConfig(
