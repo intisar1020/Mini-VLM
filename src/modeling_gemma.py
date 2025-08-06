@@ -3,6 +3,8 @@ from torch import nn
 from typing import Optional, Tuple, List
 from modeling_siglip import SiglipVisionConfig, SiglipVisionModel
 
+def repeat_kv(hidden_states: torch.Tensor, num_heads: int) -> torch.Tensor:
+    pass
 
 class KVCache(object):
     def __init__(self) -> None:
@@ -33,8 +35,6 @@ class KVCache(object):
             self.value_cache[layer_idx] = torch.cat(
                 [self.value_cache[layer_idx], value_states], dim=-2
             )
-        return self.key_cache[layer_idx], self.value_cache[layer_idx]
-
 
 class GemmaConfig:
     def __init__(
