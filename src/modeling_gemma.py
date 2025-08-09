@@ -281,6 +281,7 @@ class GemmaAttention(nn.Module):
         attn_weights = nn.functional.softmax(
             attn_weights, dim=-1, dtype=torch.float32
         ).to(query_states.dtype)
+        
         attn_weights = nn.functional.dropout(
             attn_weights, p=self.attention_dropout, training=self.training
         )
@@ -288,9 +289,18 @@ class GemmaAttention(nn.Module):
         attn_output = torch.matmul(
             attn_weights, 
             value_states)
+        if attn_output.size() != (bsz, self.num_heads, q_len, self.head_dim):
+            raise ValueError(
+                f"Attention output shape mismatch: {attn_output.size()} != {(bsz, self.num_heads, q_len, self.head_dim)}"
+            )
+        attn_output = attn_output.transpose(1, 2).contiguous()
+        attn_output = attn_output.view(
+            bsz, q_len, self.num_heads * self.head_dim)
+        attn_output = self.o_proj(attn_output)
+
+        return attn_output, attn_weights
+    
         
-
-
 class GemmaDecoderLayer:
     def __init__(
         self,
