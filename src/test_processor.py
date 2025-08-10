@@ -27,4 +27,3 @@ tokens = tokenizer.convert_ids_to_tokens(input_ids)
 print("\nToken ID -> Token Text:")
 for token_id, token_text in zip(input_ids.tolist(), tokens):
     print(f"{token_id} -> '{token_text}'")
-
